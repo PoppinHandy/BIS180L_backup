@@ -1,0 +1,11 @@
+import	as.data.frame	as.matrix	c	cmdscale	data.matrix	dim	dist	head	read.csv	sample
+Exercise_1	aes	geno.mds	geom_point	ggplot	V1	V2
+Exercise_2	c	geno.mds	head	merge	read.csv	summary	T
+Exercise_3	aes	Amylose.content	data.all	geom_point	ggplot	I	Pericarp.color	Region	scale_color_brewer	V1	V2
+PSMix	$	$<-	aes	apply	as.character	as.data.frame	c	cbind	colnames<-	data.geno.2500	factor	geom_bar	ggplot	head	library	load	matrix	max	melt	ncol	nrow	order	paste	ps4	round	sampleID	scale_color_brewer	scale_fill_brewer	value	variable	ylab
+Exercise_4	$	$<-	aes	cbind	colnames<-	data.pheno	factor	geom_point	ggplot	paste	popID	save	V1	V2
+amylose	~	aes	Amylose.content	data.pheno	facet_wrap	geno.mds	geom_histogram	ggplot	ggtitle	merge	qplot	Region
+Exercise_5	~	aes	data.pheno.mds	facet_wrap	geom_boxplot	geom_histogram	geom_violin	ggplot	ggtitle	popID	Protein.content	qplot
+Exercise_6	~	$	aov	data.pheno.mds	mean	summary	T	tapply
+Exercise_7	~	<	==	$	c	codominant	colnames	data.geno	grep	head	library	merge	ncol	plot	qqpval	read.csv	rownames<-	Seed.volume	setupSNP	sum	T	WGassociation
+Exercise_8	<	cbind	codominant	snpinfo3	wg3.corrected

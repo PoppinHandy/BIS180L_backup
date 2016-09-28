@@ -1,0 +1,259 @@
+---
+title: "Exercises"
+author: "Andy Pham"
+date: "April 21, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE)
+library(ggplot2)
+```
+
+##Exercise 1
+
+```{r Exercise_1}
+sum(2000:20000)
+```
+The sum is: 198011000
+
+##Exercise 2
+In the code snippet, a is assigned the value 5, b is assigned the vector from that holds the numbers 2 to 20 incremented by 1. a and b are then printed out.
+
+##Exercise 3
+
+```{r Exercise_3}
+a <- 5
+b <- 2:20
+sum(a, b)
+a + b
+```
+I get different results because sum adds all the numbers stored in both a and b while the "+" adds a to every element in b because b is a vector.
+
+##Exercise 4
+
+```{r Exercise_4}
+sum(b[5:10])
+```
+The sum is 51.
+
+##Exercise 5
+
+```{r Exercise_5}
+sum(b[c(3, 8, 10)])
+```
+The sum is 24.
+
+##Exercise 6
+
+```{r Exercise_6}
+m <- matrix(data=1:25, ncol=5, byrow=T)
+m
+c(m[, 3], m[, 4], m[, 5])
+```
+When extracting from a 2D object, the first number represents the row and the second number represents the column. m[3,] will return all the values in row 3. You extract the columns of m together using c(m[, 3], m[, 4], m[, 5]).
+
+##Exercise 7
+
+```{r Exercise_7}
+cbind(m, 101:105)
+n <- 1:5
+rbind(n, m)
+```
+The cbind command adds a column to the matrix specified with the data specified. In this case, cbind added a column to m with the numbers 101 to 105. Rbind would add another row to the matrix.
+
+```{r import}
+fly.worm <- read.delim("../Data/fly2worm.blastp.gz", header=F)
+#change the file name and path to match whatever you used.
+#the header=F argument tells R that the first row contains data, not column names
+#takes a while to read in this large data set.
+head(fly.worm)
+summary(fly.worm)
+colnames(fly.worm) <- c("qid", "sid", "pct", "len", "mis", "gaps", "qb", "qe", "sb", "se", "E", "S")
+head(fly.worm)
+summary(fly.worm)
+```
+##Exercise 8
+
+```{r Exercise_8}
+evalue <- sum(fly.worm["E"] == 0)
+pID <- sum(fly.worm["pct"] > 50)
+evalue_percent <- sum(fly.worm["E"] == 0)/nrow(fly.worm)
+percentID <- sum(fly.worm["pct"] > 50)/nrow(fly.worm)
+evalue_pID <- sum(fly.worm["E"] == 0 & fly.worm["pct"] < 50)
+minpID <- subset(fly.worm, E == 0)
+min(minpID["pct"])
+```
+
+**E-value of 0**: 7531 hits, 0.01494 
+**Percent Identity > 50**: 20928 hits, 0.04151
+**E-value of 0 and Percent Identity < 50**: 3351 hits
+**Minimum Percent Identity of Hits with E-value of 0**: 24.07
+
+##Exercise 9
+I am surprised that low percent identity sequences can still have an E-value of 0. The alignment property that affects the E-value being 0 even when the percent identity is less than 50 is raw score. The higher the raw score, the lower the e-value. Thus, when the raw score is high enough, the e-value is small enough to get rounded to 0.
+
+```{r Exercise_9}
+mp <- cbind(fly.worm["E"], fly.worm["S"])
+summary(mp)
+mp_small <- subset(mp, E == 0)
+mp_big <- subset(mp, E > 0)
+mp_middle <- subset(mp, E < 2e-12)
+mp_middle2 <- subset(mp, E < 2e-14)
+summary(mp_small)
+summary(mp_big)
+summary(mp_middle)
+summary(mp_middle2)
+```
+As the summaries show, the lower the E-values become, the higher the mean of the raw score "S" becomes. When E is 0 as shown in mp_small, the mean of the raw scores is many times higher than that if E is greater than 0 as seen in mp_big. Then as the high bounds for E decreeases, the mean of the raw score increases as seen in mp_middle and mp_middle2. 
+
+##Exercise 10
+```{r Exercise_10}
+fly.worm.small <- sample(nrow(fly.worm), 10000)
+summary(fly.worm[fly.worm.small, ])
+```
+
+##Exercise 11
+```{r Exercise_11}
+stereotype_db <- read.delim("stereotypes.csv", sep =",")
+summary(stereotype_db)
+head(stereotype_db)
+```
+
+##Activity Break for Intro to Plotting
+
+###AB1-1
+```{r AB1-1}
+nerds_and_metal <- subset(stereotype_db, population == "nerd" | population == "metalhead")
+summary(nerds_and_metal)
+```
+
+###AB1-2
+```{r AB1-2}
+males.only <- subset(stereotype_db, gender == "male" & beer > 25 & tacos > 20)
+summary(males.only)
+```
+There are more males in the metalhead category who binge drink and eat over 20 tacos a week.
+
+###AB1-3
+```{r AB1-3}
+print("How many females total spend more than 2 hours on the computer and drink more than 12 cups of coffee in a week?")
+females.ask <- subset(stereotype_db, gender == "female" & computer > 2 & coffee > 12)
+summary(females.ask)
+```
+161 females total.
+
+###AB_4:
+In R, "==" means if left hand side is equal to right side, then return true, else return false.
+
+##Visualization with ggplot2 (Plotting tutorial)
+
+###AB2-1
+
+```{r AB2-1}
+qplot(shower, data=stereotype_db, geom="histogram", fill=population, binwidth= 1)
+```
+
+###AB2-2
+```{r AB2-2}
+qplot(beer, data=stereotype_db, geom="histogram", fill=gender, binwidth= 1)
+```
+
+###AB2-3
+```{r AB2-3}
+ggplot(stereotype_db, aes(population, shower)) + geom_violin()
+```
+
+##Combining Subset with Visualization (Plotting tutorial)
+
+###AB3-1
+```{r AB3-1}
+nerds_only <- subset(stereotype_db, population == "nerd")
+qplot(beer, data=stereotype_db, geom ="density", fill=gender, alpha=I(0.5))
+```
+
+###AB3-2
+```{r AB3-2}
+qplot(coffee, data=stereotype_db, geom="freqpoly", colour = population, binwidth = 1)
+metal <- subset(stereotype_db, population == "metalhead")
+qplot(gender, tacos, data=metal, geom = "point", colour=tacos)
+qplot(tacos,  data=stereotype_db, geom = "histogram", fill=population, binwidth=1)
+```
+Hipsters consume the most coffee per individual out of the entire population.
+Of the metalheads, the males eat the most tacos and have a wider distribution.
+Hippies eat the least amount of tacos.
+
+###AB3-3
+```{r AB3-3}
+summary(stereotype_db)
+qplot(coffee, data=stereotype_db, geom ="freqpoly", colour=population, binwidth=1)
+qplot(tacos, data=stereotype_db, geom ="freqpoly", colour=population, binwidth=1)
+qplot(shower, data=stereotype_db, geom="histogram", fill=population, binwidth=1)
+qplot(computer, data=stereotype_db, geom="histogram", colour = population, binwidth=1)
+
+```
+Three hypotheses:
+1. The more a person showers and goes on the computer, the more likely it is that they will be a nerd.
+2. As the cups of coffee increase, the number of hipsters increase.
+3. As the number of tacos increase, the amount of nerds, hippies, and hipsters decrease.
+
+##Visualization with the ggplot function (Plotting tutorial)
+
+###AB4-1
+```{r AB4-1}
+p <- ggplot(stereotype_db, aes(tacos, fill=gender))
+p + geom_dotplot(binwidth=1) + facet_grid(~population, scales="free") 
+```
+
+###AB4-2
+```{r AB4-2}
+a <- ggplot(stereotype_db, aes(shower, colour=gender))
+b <- ggplot(stereotype_db, aes(shower, fill=gender))
+a + geom_bar()
+b + geom_bar()
+```
+
+color= means to outline the edge of the unique attributes with different colors while fill= means to fill the whole bar or symbol with color, edges and all.
+
+###AB5-1
+```{r AB5-1}
+c <- ggplot(stereotype_db, aes(beer, computer, color=population, shape=gender))
+c+ geom_point()
+```
+
+###AB5-2
+```{r AB5-2}
+d <- ggplot(stereotype_db, aes(beer, fill=population, shape=gender), colour="clarity")
+d + geom_bar() + scale_color_hue(l=90, c=50)
+```
+
+###AB5-3
+```{r AB5-3}
+f <- ggplot(stereotype_db, aes(gender, age))
+f + geom_boxplot(aes(shape=population, fill=population), notch=TRUE, alpha=0.5)
+```
+
+##Visualization of the BLAST dataset
+
+##Exercise 12
+```{r Exercise_12}
+fly.worm.sample <- sample(nrow(fly.worm), 10000)
+fw.db <- fly.worm[fly.worm.sample, ]
+summary(fw.db)
+score.length <- ggplot(fw.db, aes(len, S))
+score.length + geom_point(colour="red")
+```
+
+Using a random sampling of 10,000 points, we can roughly see the relationship between score and alignment length. The relationship is that as the alignment length increases, the score increases linearly.
+
+##Exercise 13
+Hypothesis: As the amount of gaps increase, the alignment length increases and as a result, the scores increase. So the bigger the gaps, the bigger the score.
+```{r Exercise_13}
+length.gaps <- ggplot(fw.db, aes(x=gaps, y=len))
+length.gaps + geom_point(colour = "blue")
+score.gaps <- ggplot(fw.db, aes(gaps, S))
+score.gaps + geom_point(colour = "red")
+```
+
+Conclusion: As the amount of gaps increase, the alignment length does increase and thus the score increases. However, the increase in gaps does not directly result in the increase of score.
+

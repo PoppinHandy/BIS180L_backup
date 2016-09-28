@@ -1,0 +1,27 @@
+Exercise_1	sum
+Exercise_3	sum
+Exercise_4	b	sum
+Exercise_5	b	c	sum
+Exercise_6	c	matrix	T
+Exercise_7	cbind	m	rbind
+import	c	colnames<-	F	head	read.delim	summary
+Exercise_8	<	==	>	&	E	fly.worm	min	nrow	subset	sum
+Exercise_9	<	==	>	cbind	E	fly.worm	subset	summary
+Exercise_10	fly.worm	nrow	sample	summary
+Exercise_11	head	read.delim	summary
+AB1-1	==	|	population	stereotype_db	subset	summary
+AB1-2	==	>	&	beer	gender	stereotype_db	subset	summary	tacos
+AB1-3	==	>	&	coffee	computer	gender	print	stereotype_db	subset	summary
+AB2-1	population	qplot	shower	stereotype_db
+AB2-2	beer	gender	qplot	stereotype_db
+AB2-3	aes	geom_violin	ggplot	population	shower	stereotype_db
+AB3-1	==	beer	gender	I	population	qplot	stereotype_db	subset
+AB3-2	==	coffee	gender	population	qplot	stereotype_db	subset	tacos
+AB3-3	coffee	computer	population	qplot	shower	stereotype_db	summary	tacos
+AB4-1	~	aes	facet_grid	gender	geom_dotplot	ggplot	stereotype_db	tacos
+AB4-2	aes	gender	geom_bar	ggplot	shower	stereotype_db
+AB5-1	aes	beer	computer	gender	geom_point	ggplot	population	stereotype_db
+AB5-2	aes	beer	gender	geom_bar	ggplot	population	scale_color_hue	stereotype_db
+AB5-3	aes	age	gender	geom_boxplot	ggplot	population	stereotype_db
+Exercise_12	aes	fly.worm	geom_point	ggplot	len	nrow	S	sample	summary
+Exercise_13	aes	fw.db	gaps	geom_point	ggplot	len	S

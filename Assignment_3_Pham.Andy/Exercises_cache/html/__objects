@@ -1,0 +1,30 @@
+Exercise_1	
+Exercise_3	a	b
+Exercise_4	
+Exercise_5	
+Exercise_6	m
+Exercise_7	n
+import	fly.worm
+Exercise_8	evalue	evalue_percent	evalue_pID	minpID	percentID	pID
+Exercise_9	mp	mp_big	mp_middle	mp_middle2	mp_small
+Exercise_10	fly.worm.small	.Random.seed
+Exercise_11	stereotype_db
+AB_1	nerds_and_metal
+AB_2	males.only
+AB_3	females.ask
+AB1-1	nerds_and_metal
+AB1-2	males.only
+AB1-3	females.ask
+AB2-1	
+AB2-2	
+AB2-3	
+AB3-1	nerds_only
+AB3-2	metal
+AB3-3	
+AB4-1	p
+AB4-2	a	b
+AB5-1	c
+AB5-2	d
+AB5-3	f
+Exercise_12	fly.worm.sample	fw.db	score.length
+Exercise_13	length.gaps	score.gaps

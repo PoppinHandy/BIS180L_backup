@@ -1,0 +1,11 @@
+---
+title: "Intro to R"
+author: "Andy Pham"
+date: "April 21, 2016"
+output: pdf_document
+---
+
+##A silly R program This is the first program that Professor Maloof asked us to write in R
+```{r hello_world2}
+print ("Hello World")
+```

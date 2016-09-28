@@ -1,0 +1,209 @@
+---
+title: "Assignment 4"
+output: html_document
+---
+
+Student Name: Andy Pham
+Student ID: 997942129
+
+## Assignment 4: Rice SNPs and GWAS
+
+This should be a knittable .Rmd file.  Include this file, a .pdf and a .html when you turn in the assignment.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE)
+library(ggplot2)
+library(reshape2)
+```
+
+```{r import}
+data.geno <- read.csv("RiceSNPData/Rice_44K_genotypes.csv.gz", row.names=1, na.strings=c("NA","00"))
+head(data.geno[,1:20])
+data.geno.2500 <- sample(data.geno, 2500)
+dim(data.geno.2500)
+geno.numeric <- data.matrix(data.geno.2500)
+head(geno.numeric[,1:20])
+genDist <- as.matrix(dist(geno.numeric))
+geno.mds <- as.data.frame(cmdscale(genDist))
+head(geno.mds)
+```
+
+**EXERCISE 1:** Is there any evidence for populations structure (different sub populations)?  If so, how many sub populations do you think the MDS plot reveals?  What do you make of the individuals that are between the major groups? (Include your plot and code)
+```{r Exercise_1}
+p <- ggplot(geno.mds, aes(x=V1, y=V2))
+p + geom_point()
+```
+
+This plot does show evidence for different sub populations. The MDS plot reveals 3 sub populations. The individuals between the major groups could be hybrids that have a combination of genes from the subpopulations.  
+
+**EXERCISE 2:** 
+
+* Use the `read.csv()` `head()` and `summary()` functions that you learned earlier to import and look at this file.  Import the file into an object called "data.pheno".
+* Use merge() to merge the MDS scaled genotype data with the phenotype data.  Here the column that we are merging on is the "row.name" column.  So you can use `by="row.names"` or `by=1` in your call to merge.  Use summary and head to look at the new object and make sure that it is as you expect.
+* Include your code in the .Rmd
+```{r Exercise_2}
+data.pheno <- read.csv("RiceSNPData/RiceDiversity.44K.MSU6.Phenotypes.csv", row.names = 1, na.strings=c("NA","00"))
+head(data.pheno)
+summary(data.pheno)
+data.all <- merge(geno.mds, data.pheno, by=0, all = T)
+summary(data.all)
+head(data.all[,1:20])
+```
+
+**EXERCISE 3:** Prepare three different plots to explore if subgroups vary by 1) Amylose content; 2) Pericarp color; 3) Region.  Do any of these seem to be associated with the different population groups? Briefly discuss.
+
+*Hint 1* use `color=` argument to `qplot` or `ggplot` to color the point by the different traits  
+*Hint 2* use `size=I(3)` as an argument to increase the point size (you can play with different values)  
+*Hint 3* when plotting the Region data, the colors will be easier to interpret if you include the following at the end of the line with your qplot command: ` + scale_color_brewer(type="div")` This specifies that a diverging set of colors is used.  (Try plotting with and without this).
+
+```{r Exercise_3}
+amylose <- ggplot(data.all, aes(x=V1, y=V2, color=Amylose.content), size=I(3))
+amylose + geom_point()
+pericarp <- ggplot(data.all, aes(x=V1, y=V2, color=Pericarp.color), size=I(3))
+pericarp + geom_point()
+region <- ggplot(data.all, aes(x=V1, y=V2, color=Region), size=I(3))
+region + geom_point() + scale_color_brewer(type="div")
+```
+
+Looking at the plots, there seems to be nothing associated with these different population groups. All of the traits are mixed within each subpopulation and there is no subpopulation with a consistent trait.
+
+```{r PSMix}
+data.geno.2500.c <- apply(data.geno.2500, 2, as.character)
+data.geno.2500.ps <- matrix("", nrow=nrow(data.geno.2500.c)*2, ncol=ncol(data.geno.2500.c))
+library(PSMix)
+load("RiceSNPData/ps4.2500.RData")
+#names(ps4)
+#head(ps4$AmPr)
+round(head(ps4$AmPr), 3)
+#head(ps4$AmId)
+#table(ps4$AmId)
+ps4.df <- as.data.frame(cbind(round(ps4$AmPr,3), ps4$AmId))
+colnames(ps4.df) <- c(paste("pop",1:(ncol(ps4.df) - 1), sep=""), "popID")
+head(ps4.df)
+maxGenome <- apply(ps4$AmPr, 1, max)
+ps4.df <- ps4.df[order(ps4.df$popID, -maxGenome),]
+ps4.df$sampleID <- factor(1:413)
+head(ps4.df)
+ps4.df.melt <- melt(ps4.df, id.vars=c("popID", "sampleID"))
+head(ps4.df.melt)
+p1 <- ggplot(aes(x=sampleID, y=value, color=variable, fill=variable), data=ps4.df.melt)
+p1 <- p1 + geom_bar(stat = "identity")
+p1 <- p1 + ylab("genome proportion") + scale_color_brewer(type="div") + scale_fill_brewer(type="div")
+p1
+```
+
+**EXERCISE 4:** Re plot the MDS data, but include the population assignment in an informative way.  How do the populations assignments relate to the MDS plot?
+
+```{r Exercise_4}
+geno.mds$popID <- factor(ps4$AmId)
+colnames(ps4$AmPr) <- paste("pr", 1:4, sep="")
+geno.mds <- cbind(geno.mds, ps4$AmPr)
+p5 <- ggplot(geno.mds, aes(x=V1, y=V2, color=popID))
+p5 + geom_point()
+save(data.pheno, geno.mds, file="data_from_SNP_lab.Rdata")
+```
+The population assignments coincide with the clusters on the MDS plot, with each population ID having its own cluster. This shows that the MDS plot clusters could be based around SNP similarity to populations whose individuals have genomes that have contributions from certain ancestral genomes.  
+
+
+```{r amylose}
+data.pheno.mds <- merge(geno.mds, data.pheno, by="row.names")
+qplot(x=Amylose.content, data=data.pheno.mds, geom="histogram")
+pl <- ggplot(data=data.pheno.mds, aes(x=Amylose.content))
+pl <- pl + geom_histogram(binwidth=3)
+pl <- pl + facet_wrap(facets=~Region, ncol=3)
+pl <- pl + ggtitle("Amylose Content")
+pl
+qplot(x=Region, y=Amylose.content, geom="boxplot",data=data.pheno.mds)
+```
+
+**Exercise 5:** 
+
+* Plot your chosen trait data
+  * as a **single histogram** for all of the data
+  * as **separate histograms** for each of the 4 population assignments made by PSMix
+  * as a **boxplot** separated by population. 
+* Based on these histograms do you think that your trait varies by population? 
+* **BONUS** Try using the "violin" geom.  What is this showing?
+
+```{r Exercise_5}
+protein_histo <- qplot(x=Protein.content, data=data.pheno.mds, geom="histogram", binwidth=0.2)
+protein_4_histo <- ggplot(data.pheno.mds, aes(x=Protein.content))
+protein_4_histo <- protein_4_histo + geom_histogram(binwidth=1) + facet_wrap(facets=~popID) + ggtitle("Protein Content")
+protein_box <- ggplot(data.pheno.mds, aes(x=popID, y=Protein.content)) + geom_boxplot() + ggtitle("Protein Content")
+protein_violin <- ggplot(data.pheno.mds, aes(x=popID, y=Protein.content)) + geom_violin() + ggtitle("Protein Content")
+protein_histo
+protein_4_histo
+protein_box
+protein_violin
+```
+
+Hint: you will need to use a different binwidth (or don't specify it at all and let R choose the default).  Hint: the relevant column names for population are "popID".  
+
+Based on the histograms, I do not think the trait varies by population as popID 3 and 4 have similar protein content distribution as well as 1 and 2. The violin geom is showing the density of the distribution of the protein content. The wider the "violin" the more common that particular protein content value is. 
+
+**Exercise 6:** 
+
+* Obtain the mean of your trait for each of the 4 PSMix populations.
+* Perform an ANOVA for your trait to test if it varies significantly by population.  Show your code, the ANOVA output, and provide an interpretation.
+* Discuss: Do your results present a problem for GWAS?
+
+```{r Exercise_6}
+tapply(X=data.pheno.mds$Protein.content, INDEX=data.pheno.mds$popID, FUN=mean, na.rm=T)
+aovl <- aov(Protein.content ~ popID, data=data.pheno.mds)
+aovl1 <- aov(Protein.content ~ pr1, data=data.pheno.mds)
+aovl2 <- aov(Protein.content ~ pr2, data=data.pheno.mds)
+aovl3 <- aov(Protein.content ~ pr3, data=data.pheno.mds)
+aovl4 <- aov(Protein.content ~ pr4, data=data.pheno.mds)
+summary(aovl)
+summary(aovl1)
+summary(aovl2)
+summary(aovl3)
+summary(aovl4)
+```
+The variation within population is significant since the p-values are all lower than 0.05. However, these p-values are higher than the p-value for the variation between populations. Thus, the variation between populations is greater than the variation within the populations themselves, and this suggests the traits do vary significantly between populations.
+These results could be a problem for GWAS.
+
+
+**Exercise 7:** Describe and discuss the differences in the analysis with and without population structure correction.  Which do you think is the better one to follow-up on, and why?
+
+NOTE: I got this message: "Warning: the SNPs:  Blast.resistance Amylose.content Alkali.spreading.value Protein.content are not included in the file with the genomic positions and they are discarded" when I was running setupSNP so I changed to Seed.volume as my chosen trait.
+```{r Exercise_7}
+snpinfo <- read.csv("RiceSNPData/snpInfo.csv",row.names=1)
+head(snpinfo)
+head(data.pheno.mds)
+rownames(data.pheno.mds) <- data.pheno.mds$Row.names
+data.geno.pheno <- merge(data.pheno.mds, data.geno, by="row.names")
+library(SNPassoc)
+data.geno.pheno3 <- data.geno.pheno[, c(1:51, grep("X3_", colnames(data.geno.pheno)))]
+snpinfo3 <- snpinfo[snpinfo$chr==3,]
+snps3 <- setupSNP(data.geno.pheno3,48:ncol(data.geno.pheno3),sort=T,info=snpinfo3,sep="")
+wg3 <- WGassociation(Seed.volume,data=snps3,model="co",genotypingRate=50)
+plot(wg3,print.label.SNPs=FALSE)
+sum(codominant(wg3) < 1e-5)
+qqpval(codominant(wg3))
+wg3.corrected <- WGassociation(Seed.volume ~ pr1 + pr2 + pr3 + pr4,data=snps3,model="co",genotypingRate=50)
+plot(wg3.corrected, print.label.SNPs = FALSE)
+sum(codominant(wg3.corrected) < 1e-5)
+qqpval(codominant(wg3.corrected))
+```
+
+In the analysis without the population structure, there were overwhelmingly numerous peaks in the plot, and the observed values in the graph was far off from the expected values. The plot and graph were so saturated that it was impossible to find anything conclusive about the SNP data since the hits were being reported everywhere. It becomes hard to discern the SNPs that caused genetic differences between populations and SNPs that hit by pure chance. With the corrected population structure, the plot was less cluttered, it was easier to identify the GWAS peaks. The observed values were also closer to the expected values line in the graph. The population structure correction, which accounted for the subpopulations within the populations, is more accurate and would be the better one to follow up on because it takes out the population stratification which our data has. 
+
+
+**Exercise 8:** Look for genes close to your SNP at the [rice genome browser](http://rice.plantbiology.msu.edu/cgi-bin/gbrowse/rice/).  Pick a significant SNP from your analysis and enter its chromosome and position in the search box.  The browser wants you to enter a start and stop position, so for example, you should enter "Chr3:30449857..30449857" and then choose "show 20kb" from the pulldown menu on the left hand side.  Report the SNP you chose and the three closest genes.  These are candidate genes for determining the phenotype of your trait of interest in the rice population.  Briefly discuss these genes as possible candidates for the GWAS peak.  (Include a screenshot of the genome browser)
+
+**SNP**: X3_3557852
+
+**Genes closest**:
+_LOC_Os03g06970.1_: this gene is a tetratricopeptide repeat domain containing protein and would not be a good candidate for GWAS since it is a repeating element and probably non-coding.
+_LOC_Os03g06980.1_: this gene is a nucleic acid binding protein and would be a good candidate for GWAS, since changes in this protein would result in changes in the gene due to its nucleic acid binding affinity.
+_LOC_Os03g06960.1_: this gene is a membrane protein associated with transport, and thus would a good candidate for GWAS, since it would affect cell function and phenotype should mutations arise. 
+
+```{r Exercise_8}
+snpinfo3[codominant(wg3.corrected) < 1e-5,]
+cbind(snpinfo3[codominant(wg3.corrected) < 1e-5,], codominant(wg3.corrected)[codominant(wg3.corrected) < 1e-5])
+```
+
+
+
+

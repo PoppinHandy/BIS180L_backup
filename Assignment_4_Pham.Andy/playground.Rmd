@@ -1,0 +1,26 @@
+---
+title: "playground.Rmd"
+author: "Andy Pham"
+date: "April 29, 2016"
+output: html_document
+---
+
+```{r practice_1}
+fruit.size <- read.csv("RiceSNPData/fruit_size.csv")
+fruit.color <- read.csv("RiceSNPData/fruit_color.csv")
+fruit.shape <- read.csv("RiceSNPData/fruit_shape.csv")
+
+fruit.color
+
+fruit.color.shape <- merge(fruit.color,fruit.shape,by="fruit", all=TRUE)
+fruit.color.shape
+fruit.size
+
+fruit.all <- merge(fruit.color.shape, fruit.size, by.x="fruit", by.y="name", all=TRUE)
+fruit.all
+
+sort(fruit.shape$fruit)
+order.num <- c(order(fruit.all$shape))
+order.num
+
+```

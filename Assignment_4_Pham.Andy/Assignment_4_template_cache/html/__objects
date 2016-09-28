@@ -1,0 +1,11 @@
+import	data.geno	data.geno.2500	genDist	geno.mds	geno.numeric	.Random.seed
+Exercise_1	p
+Exercise_2	data.all	data.pheno
+Exercise_3	amylose	pericarp	region
+PSMix	data.geno.2500.c	data.geno.2500.ps	maxGenome	p1	ps4.df	ps4.df.melt	ps4
+Exercise_4	geno.mds	p5	ps4
+amylose	data.pheno.mds	pl
+Exercise_5	protein_4_histo	protein_box	protein_histo	protein_violin
+Exercise_6	aovl	aovl1	aovl2	aovl3	aovl4
+Exercise_7	data.geno.pheno	data.geno.pheno3	data.pheno.mds	snpinfo	snpinfo3	snps3	wg3	wg3.corrected
+Exercise_8	
